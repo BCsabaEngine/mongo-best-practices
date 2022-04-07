@@ -6,12 +6,24 @@ export const customerController = (conn: mongoose.Connection) => {
     const CustomerModel = conn.model<Customer>('Customer', CustomerSchema);
 
     return {
-        getAllCustomer: () => {
-            return CustomerModel.find().exec();
+        getAllCustomers: (session?: mongoose.ClientSession) => {
+            return CustomerModel
+                .find()
+                .session(session || null)
+                .exec();
+        },
+
+        getFemalesCustomers: (session?: mongoose.ClientSession) => {
+            return CustomerModel
+                .find({ isFemale: true })
+                .session(session || null)
+                .exec();
         },
 
         deleteAllCustomer: (session?: mongoose.ClientSession) => {
-            return CustomerModel.deleteMany().session(session || null);
+            return CustomerModel
+                .deleteMany()
+                .session(session || null);
         },
 
         addCustomer: (code: string, session?: mongoose.ClientSession) => {
@@ -19,6 +31,7 @@ export const customerController = (conn: mongoose.Connection) => {
             customer.code = code;
             customer.firstName = 'Balázs';
             //customer.lastName = 'Csaba'
+            customer.isFemale = Math.random() < 0.5;
             customer.documents = {
                 idCard: 'AH123456',
             }
@@ -34,13 +47,13 @@ export const customerController = (conn: mongoose.Connection) => {
                 'mariage certificate': false,
             }
             const comp = {
-                'A Kft': 'A Kft.',
-                'B Zrt': 'B Zrt.',
+                'A Kft': '8746F',
+                'B Zrt': 'FA88hH',
             }
-            customer.companies = {
-                'MOL': 'Olaj',
-                'OTP': 'Pénz',
-                'MÁV': 'Közlekedés',
+            customer.systemCodes = {
+                'MOL': 'mK_as',
+                'OTP': 'Alfa123',
+                'MÁV': 'Kkjj57dHJöőJ',
                 ...comp,
             }
             return customer.save({ session: session });

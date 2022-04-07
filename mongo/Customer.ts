@@ -25,8 +25,8 @@ export const Customer = Type.Object({
     addresses: Type.Array(CustomerAddress),
     lottery: Type.Tuple([Type.String(), Type.Number(), Type.Number(), Type.Number(), Type.Number(), Type.Number()]),
     statements: Type.Record(Type.String(), Type.Boolean()),
-    companies: Type.Record(Type.String(), Type.String()),
-})
+    systemCodes: Type.Record(Type.String(), Type.String()),
+});
 export type Customer = Static<typeof Customer>;
 
 export const CustomerSchema = new mongoose.Schema<Customer>(mongooseCommon.typeBoxToMongooseType(Customer), {

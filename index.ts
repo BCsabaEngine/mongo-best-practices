@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 
 import { customerController } from './controller/customerController';
+import { mixedCustomerController } from './controller/mixedCustomerController';
 import { connectionOptions } from './mongo/common';
 
 async function start() {
@@ -46,13 +47,30 @@ async function start() {
 
         await ctrl.addCustomerTags('C_400', ['ext1', 'ext2']);
 
-        const customers = await ctrl.getAllCustomer();
+        const customers = await ctrl.getAllCustomers();
         console.log(`Sum: ${customers.length} customers`);
+        const femaleCustomers = await ctrl.getFemalesCustomers();
+        console.log(`Sum: ${femaleCustomers.length} female customers`);
 
         const last = customers.pop()?._doc;
-        console.dir(last, { depth: null });
-        for (const c of last.companies)
+        for (const c of last?.systemCodes)
             console.log(c);
+
+        delete last.statements;
+        delete last.systemCodes;
+        console.dir(last, { depth: null });
+    }
+
+    const mCtrl = mixedCustomerController(conn);
+    {
+        await mCtrl.deleteAllMixedCustomer();
+
+        await mCtrl.addMixedCustomer('A1');
+        await mCtrl.addMixedCustomer('A2');
+        await mCtrl.addMixedCustomer('A3');
+
+        const mixedCustomers = await mCtrl.getAllMixedCustomers();
+        console.log(`Sum: ${mixedCustomers.length} mixed customers`);
     }
     //conn.close();
 }

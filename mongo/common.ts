@@ -55,6 +55,19 @@ export const typeBoxToMongooseType = (type: any): object => {
                     throw new Error(`Invalid TValue of map: ${typeMap}`);
             }
         }
+        else if (type.kind && (type.kind as Symbol) && (type.kind as Symbol).description == 'IntersectKind') {
+            const allProp: any = {};
+            if (Array.isArray(type.allOf))
+                for (const subType of type.allOf) {
+                    const subTypeCleared = typeBoxToMongooseType(subType) as any;
+                    for (const pkey of Object.keys(subTypeCleared)) {
+                        const kvalue = subTypeCleared[pkey];
+                        if (!Object.keys(allProp).includes(pkey))
+                            allProp[pkey] = kvalue;
+                    }
+                }
+            return allProp;
+        }
         else {
             cleanObj(type);
             const properties = type.properties;
