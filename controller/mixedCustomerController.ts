@@ -13,16 +13,22 @@ export const mixedCustomerController = (conn: mongoose.Connection) => {
                 .exec();
         },
 
-        addMixedCustomer: (code: string, session?: mongoose.ClientSession) => {
+        addMixedCustomerNew: (code: string, session?: mongoose.ClientSession) => {
             const mixedCustomer = new MixedCustomerModel();
             mixedCustomer.code = code;
             mixedCustomer.firstName = 'Balázs';
-            //customer.lastName = 'Csaba'
-            mixedCustomer.mainAddress = { code: 'A0', zip: '7624', city: 'Pécs', };
             mixedCustomer.addresses.push(
                 { code: 'A1', zip: '7624', city: 'Pécs' },
                 { code: 'A2', zip: '2021', city: 'Dunakeszi', address: 'Mellék utca 198.' },
             )
+            return mixedCustomer.save({ session: session });
+        },
+
+        addMixedCustomerLegacy: (code: string, session?: mongoose.ClientSession) => {
+            const mixedCustomer = new MixedCustomerModel();
+            mixedCustomer.code = code;
+            mixedCustomer.firstName = 'Balázs';
+            mixedCustomer.mainAddress = { code: 'A0', zip: '7624', city: 'Pécs', };
             return mixedCustomer.save({ session: session });
         },
 

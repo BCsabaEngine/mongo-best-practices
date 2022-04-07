@@ -65,9 +65,8 @@ async function start() {
     {
         await mCtrl.deleteAllMixedCustomer();
 
-        await mCtrl.addMixedCustomer('A1');
-        await mCtrl.addMixedCustomer('A2');
-        await mCtrl.addMixedCustomer('A3');
+        await mCtrl.addMixedCustomerLegacy('A1');
+        await mCtrl.addMixedCustomerNew('A2');
 
         const mixedCustomers = await mCtrl.getAllMixedCustomers();
         console.log(`Sum: ${mixedCustomers.length} mixed customers`);
