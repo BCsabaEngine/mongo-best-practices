@@ -28,7 +28,7 @@ export const MixedCustomer = Type.Intersect([
     NewCustomer]);
 export type MixedCustomer = Static<typeof MixedCustomer>;
 
-export const MixedCustomerSchema = new mongoose.Schema<MixedCustomer>(mongooseCommon.typeBoxToMongooseType(MixedCustomer), {
+export const MixedCustomerSchema = new mongoose.Schema<MixedCustomer>(mongooseCommon.typeBoxToMongooseSchemaDefinition(MixedCustomer), {
     collection: 'mixedcustomer',
     ...mongooseCommon.DEF_SCHEMA_PARAM,
 })

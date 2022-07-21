@@ -29,7 +29,7 @@ export const Customer = Type.Object({
 });
 export type Customer = Static<typeof Customer>;
 
-export const CustomerSchema = new mongoose.Schema<Customer>(mongooseCommon.typeBoxToMongooseType(Customer), {
+export const CustomerSchema = new mongoose.Schema<Customer>(mongooseCommon.typeBoxToMongooseSchemaDefinition(Customer), {
     collection: 'customer',
     ...mongooseCommon.DEF_SCHEMA_PARAM,
 })

@@ -1,4 +1,5 @@
-import { TNumber, TSchema, Type } from '@sinclair/typebox'
+import { TNumber, TSchema, TString, Type } from '@sinclair/typebox'
+import * as mongoose from 'mongoose';
 
 export const connectionOptions = {
     bufferCommands: false,
@@ -21,12 +22,14 @@ export const DEF_SCHEMA_PARAM = {
     autoCreate: true,
     autoIndex: true,
     collation: DEF_COLLATION,
-    timestamps: true,
+    timestamps: false,
+
+    versionKey: false,
 
     minimize: false,
 }
 
-export const typeBoxToMongooseType = (type: any): object => {
+export const typeBoxToMongooseSchemaDefinition = (type: any): object => {
     const isObject = (obj: any) => (!!obj) && (obj.constructor === Object);
     const cleanObj = (obj: any) => {
         delete obj.kind;
@@ -39,7 +42,10 @@ export const typeBoxToMongooseType = (type: any): object => {
                     delete i.kind;
     }
     if (type.type == 'object') {
-        if (type.kind && (type.kind as Symbol) && (type.kind as Symbol).description == 'RecordKind') {
+        if (type.kind && (type.kind as Symbol) && (type.kind as Symbol).description == 'ObjectIdKind') {
+            return { type: mongoose.Schema.Types.ObjectId, ref: type.ref, required: type.required };
+        }
+        else if (type.kind && (type.kind as Symbol) && (type.kind as Symbol).description == 'RecordKind') {
             if (!type.patternProperties || !type.patternProperties['^.*$'])
                 throw new Error('TKey of map can be string only');
             const typeMap = type.patternProperties['^.*$'].type;
@@ -59,7 +65,7 @@ export const typeBoxToMongooseType = (type: any): object => {
             const allProp: any = {};
             if (Array.isArray(type.allOf))
                 for (const subType of type.allOf) {
-                    const subTypeCleared = typeBoxToMongooseType(subType) as any;
+                    const subTypeCleared = typeBoxToMongooseSchemaDefinition(subType) as any;
                     for (const pkey of Object.keys(subTypeCleared)) {
                         const kvalue = subTypeCleared[pkey];
                         if (!Object.keys(allProp).includes(pkey))
@@ -74,7 +80,7 @@ export const typeBoxToMongooseType = (type: any): object => {
             for (const pkey of Object.keys(properties)) {
                 const kvalue = properties[pkey];
                 if (kvalue.type == 'object')
-                    properties[pkey] = typeBoxToMongooseType(kvalue);
+                    properties[pkey] = typeBoxToMongooseSchemaDefinition(kvalue);
                 else
                     cleanObj(properties[pkey]);
             }
@@ -87,3 +93,20 @@ export const typeBoxToMongooseType = (type: any): object => {
 const DateKind = Symbol("DateKind");
 export interface TDate extends TSchema { type: "date"; $static: Date; kind: typeof DateKind }
 export const TypeDate = Type.Number() as TNumber | TDate;
+
+const ObjectIdKind = Symbol("ObjectIdKind");
+export interface TObjectId extends TSchema { type: "object"; $static: string; kind: typeof ObjectIdKind, ref: string }
+
+export interface TTypeObjectId extends TString {
+    ref: string;
+}
+
+export const TypeObjectId = (ref: string): TTypeObjectId | TObjectId => {
+    return {
+        type: "object",
+        kind: ObjectIdKind,
+        $static: 'String',
+        ref: ref
+    };
+}
+
